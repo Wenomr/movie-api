@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css">
+    <link rel="stylesheet" href="/styles.css">
+    <title>API</title>
+</head>
+
+<body>
+    <section class="section">
+        <div class="container">
+            <form action = "/movies/" method = "POST" class = "filters">
+
+                <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label">Amount</label>
+                    </div>
+                    <input name = "count" value = "5" class="input" type="number" placeholder="Count">
+                </div>
+
+                <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label">Average</label>
+                    </div>
+                    <input name = "average" value = "7" class="input" type="number" placeholder="Average">
+                </div>
+
+                <div class="field is-horizontal">
+                    <div class="field-label is-normal">
+                        <label class="label">Year</label>
+                    </div>
+                    <input name = "year" value = "1999" class="input" type="number" placeholder="Year">
+                </div>
+
+                <div class="field is-horizontal">
+                    <div class="control">
+                        <div class="select">
+                            <select name = "sortBy">
+                                <option value = "popularity.desc">Popularity</option>
+                                <option value = "vote_average.desc">Rating</option>
+                                <option value = "release_date.desc">Release date</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field is-horizontal">
+                    <div class="control">
+                        <div class="select">
+                            <select name = "genre_id">
+                                <% for (genre of genres) { %>
+                                    <option value = '<%= genre.id %>'><%= genre.name %></option>
+                                <% } %>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field is-horizontal">
+                    <div class="control">
+                        <button id="btn" type = "submit" class="button is-primary">Apply</button>
+                    </div>
+                </div>
+
+            </form>
+
+            <br />
+            <% for (movie of results) { %>
+                <% if (movie) { %>
+                    <h5 class="title is-5">
+                        <%- '<a href="/movies/id/'+ movie.id +'">'+ movie.title +'</a>' %>
+                    </h5>
+
+                    <div class="content message is-dark">
+                        <p class="message-header help" >
+                            <%= movie.genre_titles +". "+ movie.release_date + ". Vote Average:" + movie.vote_average %> 
+                        </p>
+                        <p class = "message-body"> <%- movie.overview %> </p>
+                    </div>
+                <% } %>
+            <% } %>
+        </div>
+        <script>
+
+            // const btn = document.querySelector("#btn");
+            // btn.addEventListener("click", (event) => {});
+
+        </script>
+    </section>
+</body>
+
+</html>
