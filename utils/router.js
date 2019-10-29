@@ -4,6 +4,7 @@ const request = require('request');
 const router = express.Router();
 const genres = require('./genres');
 const bd = require('./bd');
+const md5 = require('md5');
 
 const sort = ["popularity.desc", "release_date.desc", "vote_average.desc"]; // список доступных сортировок.
 const api_line = `?api_key=${process.env.API_KEY}`;
@@ -22,17 +23,14 @@ router.get("/movies/id/:id", (req, res) => {
 
 router.get("/movies/", (req, res) => {
     // Последние сохраненные в базе фильмы
-    bd.getMovies().then((results) => {
-        if (!results) {
-            results = {}
-        }
-        console.log(results);
-        res.render("index", {
-            results: results,
-            genres: genres
-        });
+    
+    results = [];
+    
+    console.log(results);
+    res.render("index", {
+        results: results,
+        genres: genres
     });
-
 });
 
 router.post("/movies/", (req, res) => {
@@ -68,56 +66,63 @@ router.post("/movies/", (req, res) => {
         year = false;
         year_line = ``;
     }
-    
-    bd.deleteMovies().then(() => {
-        request(`https://api.themoviedb.org/3/discover/movie${api_line}&language=en-U${sort_line}${average_line}${genre_line}${year_line}`, (error, response, body) => {
-            console.log('error:', error); // Print the error if one occurred
-            console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-            let results = JSON.parse(body).results.slice(0, parseInt(count));
-            for (movie of results) {
-                movie.genre_titles = genres.genresIdToTitles(movie.genre_ids);
-                bd.saveMovie(movie);
-                console.log("________________");
-                console.log(movie.vote_count, movie.popularity, movie.vote_average);
-            }
-            //res.send("API is working properly");
-            res.render("index", {
-                results: results,
-                genres: genres
-            });
-        });
-    });
 
+    let hash = md5(average + year + sortBy + genre_id + count);
+
+    bd.getResult(hash).then((result) => {
+        if (!result) {
+            console.log("GETS API");
+            console.log(result);
+            request(`https://api.themoviedb.org/3/discover/movie${api_line}&language=en-U${sort_line}${average_line}${genre_line}${year_line}`, (error, response, body) => {
+                console.log('error:', error);
+                console.log('statusCode:', response && response.statusCode);
+                let results = JSON.parse(body).results.slice(0, parseInt(count));
+                let movie_id_list = [];
+                for (movie of results) {
+                    movie.genre_titles = genres.genresIdToTitles(movie.genre_ids);
+                    movie_id_list.push(movie.id);
+                    bd.saveMovie(movie);
+                }
+                bd.saveResult(hash, movie_id_list);
+                res.render("index", {
+                    results: results,
+                    genres: genres
+                });
+            });
+        } else {
+            console.log("GETS LOCAL");
+            const ids = result.movies;
+            bd.getMovies(ids).then((movies) => {
+                console.log(movies);
+                const movie_list = [];
+                for (id of ids) {
+                    for (movie of movies) {
+                        if (movie.id == id) {
+                            movie_list.push(movie);
+                        }
+                    }
+                }
+                res.render("index", {
+                    results: movie_list,
+                    genres: genres
+                });
+            });
+        }
+    });
 });
 
 let isBusy = false;
 let amount_done;
 let amount_full;
 
-router.get("/movies/genreprogress", (req, res) => {
-    if (isBusy) {
-        console.log(amount_done, amount_full);
-    }
+router.get("/movies/genre/:id", (req, res) => {
+    
     let genre_id = 35;
     let genre_line = `&with_genres=${genre_id}`;
-
-    class Counter {
-        constructor(done) {
-            this.done = done
-        }
-        // Adding a method to the constructor
-        count() {
-            this.done++;
-            console.log(counterLittle.done);
-        }
-    }
-    const counterLittle = new Counter(0);
-    counterLittle.count();
 
     res.send("S");
 
     request(`https://api.themoviedb.org/3/discover/movie${api_line}&language=en-U${genre_line}`, (error, response, body) => {
-        counterLittle.done = 0;
         console.log('error:', error); // Print the error if one occurred
         console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
         body = JSON.parse(body);
@@ -126,7 +131,6 @@ router.get("/movies/genreprogress", (req, res) => {
         amount_full = body.results.length;
         amount_done = 0;
         for (movie in body.results) {
-            setTimeout(counterLittle.count, 1000, movie);
             
         }
     });
