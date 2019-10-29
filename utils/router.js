@@ -73,7 +73,7 @@ router.post("/movies/", (req, res) => {
         if (!result) {
             console.log("GETS API");
             console.log(result);
-            request(`https://api.themoviedb.org/3/discover/movie${api_line}&language=en-U${sort_line}${average_line}${genre_line}${year_line}`, (error, response, body) => {
+            request(`https://api.themoviedb.org/3/discover/movie${api_line}&language=en-US${sort_line}${average_line}${genre_line}${year_line}`, (error, response, body) => {
                 console.log('error:', error);
                 console.log('statusCode:', response && response.statusCode);
                 let results = JSON.parse(body).results.slice(0, parseInt(count));
@@ -111,10 +111,6 @@ router.post("/movies/", (req, res) => {
     });
 });
 
-let isBusy = false;
-let amount_done;
-let amount_full;
-
 router.get("/movies/genre/:id", (req, res) => {
     
     let genre_id = 35;
@@ -122,16 +118,28 @@ router.get("/movies/genre/:id", (req, res) => {
 
     res.send("S");
 
-    request(`https://api.themoviedb.org/3/discover/movie${api_line}&language=en-U${genre_line}`, (error, response, body) => {
+    request(`https://api.themoviedb.org/3/discover/movie${api_line}&language=en-US${genre_line}`, (error, response, body) => {
         console.log('error:', error); // Print the error if one occurred
         console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
         body = JSON.parse(body);
         console.log(body.results.length);
+        console.log(body.total_pages);
+        let total = body.total_pages;
 
-        amount_full = body.results.length;
-        amount_done = 0;
-        for (movie in body.results) {
-            
+        for (let i = 1, p = Promise.resolve(); i <= body.total_pages; i++) {
+            p = p.then(_ => new Promise(resolve =>
+            setTimeout(
+                () => {
+                    request(`https://api.themoviedb.org/3/discover/movie${api_line}&language=en-US${genre_line}&page=${i}`, (error, response, body) => {
+                        console.log('error:', error); // Print the error if one occurred
+                        console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
+                        body = JSON.parse(body);
+                        console.log(i, " of ", total)
+                    });
+                    console.log(i);
+                    resolve();
+                }, 1000)
+            ));
         }
     });
    
