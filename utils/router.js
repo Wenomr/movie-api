@@ -9,6 +9,11 @@ const md5 = require('md5');
 const sort = ["popularity.desc", "release_date.desc", "vote_average.desc"]; // список доступных сортировок.
 const api_line = `?api_key=${process.env.API_KEY}`;
 
+bd.deleteGenres().then(() => {
+    bd.saveGenres(genres);
+    console.log("Genres restarted");
+})
+
 router.get("/movies/id/:id", (req, res) => {
     // Последние сохраненные в базе фильмы
     console.log(req.params.id);
@@ -113,36 +118,43 @@ router.post("/movies/", (req, res) => {
 
 router.get("/movies/genre/:id", (req, res) => {
     
-    let genre_id = 35;
+    let genre_id = req.params.id;
     let genre_line = `&with_genres=${genre_id}`;
-
-    res.send("S");
-
-    request(`https://api.themoviedb.org/3/discover/movie${api_line}&language=en-US${genre_line}`, (error, response, body) => {
-        console.log('error:', error); // Print the error if one occurred
-        console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-        body = JSON.parse(body);
-        console.log(body.results.length);
-        console.log(body.total_pages);
-        let total = body.total_pages;
-
-        for (let i = 1, p = Promise.resolve(); i <= body.total_pages; i++) {
-            p = p.then(_ => new Promise(resolve =>
-            setTimeout(
-                () => {
-                    request(`https://api.themoviedb.org/3/discover/movie${api_line}&language=en-US${genre_line}&page=${i}`, (error, response, body) => {
-                        console.log('error:', error); // Print the error if one occurred
-                        console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-                        body = JSON.parse(body);
-                        console.log(i, " of ", total)
-                    });
-                    console.log(i);
-                    resolve();
-                }, 1000)
-            ));
+    bd.getGenre(genre_id).then((genre) => {
+        console.log(genre);
+        if (genre.ready !== true) {
+            let percentage = genre.done/genre.total * 100;
+            let status = `Loading ${genre.done} out of ${genre.total}. (${percentage.toFixed(2)/1}%). For now average = ${genre.average.toFixed(2)/1}`;
+            console.log(status);
+            res.send(status)
+        } else {
+            console.log(`Counting starts!`);
+            res.send(`Counting starts!`);
+            request(`https://api.themoviedb.org/3/discover/movie${api_line}&language=en-US${genre_line}`, (error, response, body) => {
+                body = JSON.parse(body);
+                let total = body.total_pages;
+                for (let i = 1, p = Promise.resolve(); i <= total; i++) {
+                    p = p.then(result => new Promise(resolve =>
+                    setTimeout(
+                        () => {
+                            request(`https://api.themoviedb.org/3/discover/movie${api_line}&language=en-US${genre_line}&page=${i}`, (error, response, body) => {
+                                body = JSON.parse(body);
+                                let movie_sum = 0;
+                                for (movie of body.results) {
+                                    movie_sum += movie.vote_average;
+                                }
+                                console.log(`${i} of ${body.total_pages} is done`);
+                                let rating = movie_sum/body.results.length;
+                                bd.updateGenre(genre_id, i, rating, total);
+                            });
+                            resolve();
+                        }, 400)
+                    ));
+                }
+            });
         }
     });
-   
+
 });
 
 module.exports = router;
