@@ -94,10 +94,11 @@ router.post("/movies/", (req, res) => {
                     bd.saveMovie(movie);
                 }
                 bd.saveResult(hash, movie_id_list);
-                res.render("index", {
-                    results: results,
-                    genres: genres
-                });
+                // res.render("index", {
+                //     results: results,
+                //     genres: genres
+                // });
+                res.send(results);
             });
         } else {
             console.log("GETS LOCAL");
@@ -112,10 +113,11 @@ router.post("/movies/", (req, res) => {
                         }
                     }
                 }
-                res.render("index", {
-                    results: movie_list,
-                    genres: genres
-                });
+                // res.render("index", {
+                //     results: movie_list,
+                //     genres: genres
+                // });
+                res.send(movie_list);
             });
         }
     });
