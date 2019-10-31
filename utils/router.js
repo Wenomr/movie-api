@@ -18,15 +18,15 @@ router.get("/movies/id/:id", (req, res) => {
     // Последние сохраненные в базе фильмы
     bd.getMovie(req.params.id).then((movie) => {
         if (movie) {
-            res.send(`<h3><a href = "/movies/">HOME</a></h3><p>${movie}</p>`);
+            res.send(movie);
         }  else {
             request(`https://api.themoviedb.org/3/movie/${req.params.id}${api_line}&language=en-US`, (error, response, body) => {
                 if (error) {
-                    res.send(`<h3><a href = "/movies/">HOME</a></h3><p>Connection error</p>`);
+                    res.send({error: "error"});
                 } else if (body.status_code === 34) {
-                    res.send(`<h3><a href = "/movies/">HOME</a></h3><p>${body}</p>`);
+                    res.send(body);
                 } else {
-                    res.send(`<h3><a href = "/movies/">HOME</a></h3><p>Not found</p>`);
+                    res.send({error: "not found"});
                 }
             });
         }
