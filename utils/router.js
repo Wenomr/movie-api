@@ -16,14 +16,21 @@ bd.deleteGenres().then(() => {
 
 router.get("/movies/id/:id", (req, res) => {
     // Последние сохраненные в базе фильмы
-    console.log(req.params.id);
-    
-    request(`https://api.themoviedb.org/3/movie/${req.params.id}${api_line}&language=en-US`, (error, response, body) => {
-            console.log('error:', error); // Print the error if one occurred
-            console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-            // let results = JSON.parse(body).results.slice(0, parseInt(count));
-            res.send(`<h3><a href = "/movies/">HOME</a></h3><p>${body}</p>`);
-        });
+    bd.getMovie(req.params.id).then((movie) => {
+        if (movie) {
+            res.send(`<h3><a href = "/movies/">HOME</a></h3><p>${movie}</p>`);
+        }  else {
+            request(`https://api.themoviedb.org/3/movie/${req.params.id}${api_line}&language=en-US`, (error, response, body) => {
+                if (error) {
+                    res.send(`<h3><a href = "/movies/">HOME</a></h3><p>Connection error</p>`);
+                } else if (body.status_code === 34) {
+                    res.send(`<h3><a href = "/movies/">HOME</a></h3><p>${body}</p>`);
+                } else {
+                    res.send(`<h3><a href = "/movies/">HOME</a></h3><p>Not found</p>`);
+                }
+            });
+        }
+    })
 });
 
 router.get("/movies/", (req, res) => {
@@ -79,8 +86,6 @@ router.post("/movies/", (req, res) => {
             console.log("GETS API");
             console.log(result);
             request(`https://api.themoviedb.org/3/discover/movie${api_line}&language=en-US${sort_line}${average_line}${genre_line}${year_line}`, (error, response, body) => {
-                console.log('error:', error);
-                console.log('statusCode:', response && response.statusCode);
                 let results = JSON.parse(body).results.slice(0, parseInt(count));
                 let movie_id_list = [];
                 for (movie of results) {
