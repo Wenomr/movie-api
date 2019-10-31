@@ -52,7 +52,7 @@ router.post("/movies/", (req, res) => {
     sort.includes(sortBy) ? sortBy += "" : sortBy = "popularity.desc";
     let sort_line = `&sort_by=${sortBy}`;
 
-    console.log("GENRE_ID:", genre_id, "GENRE_NAME: ", genres.genresIdToTitle(genre_id));
+    console.log( "GENRE_NAME: ", genres.genresIdToTitle(genre_id));
 
     let genre_line = ``;;
     for (genre of genres) {
