@@ -8,10 +8,7 @@ mongoose.connect(uri, {useNewUrlParser: true, useUnifiedTopology: true })
 mongoose.set("useCreateIndex", true);
 
 const movieSchema = new mongoose.Schema ({
-    id : {
-        type: Number,
-        index: {unique: true, dropDups: true}
-    },
+    id : Number,
     title: String,
     popularity: Number,
     vote_average: Number,

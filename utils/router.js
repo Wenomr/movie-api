@@ -48,13 +48,15 @@ router.get("/movies/", (req, res) => {
 router.post("/movies/", (req, res) => {
 
     let {average, year, sortBy, genre_id, count} = req.body;
-    console.log("Average: ", average, "Year: ", year, "Sort: ", sortBy, "Genre_ID: ", genre_id);
+    console.log("Average: ", average, "Year: ", year, "Sort: ", sortBy, "Genre_ID: ", genre_id, "Count: ", count);
     sort.includes(sortBy) ? sortBy += "" : sortBy = "popularity.desc";
     let sort_line = `&sort_by=${sortBy}`;
 
     console.log( "GENRE_NAME: ", genres.genresIdToTitle(genre_id));
 
-    let genre_line = ``;;
+    if (parseInt(count) > 20 || parseInt(count) < 1) { count = 8; }
+
+    let genre_line = ``;
     for (genre of genres) {
         if (parseInt(genre_id) === genre.id) {
             genre_line = `&with_genres=${genre_id}`;
@@ -85,7 +87,8 @@ router.post("/movies/", (req, res) => {
         if (!result) {
             console.log("GETS API");
             console.log(result);
-            request(`https://api.themoviedb.org/3/discover/movie${api_line}&language=en-US${sort_line}${average_line}${genre_line}${year_line}`, (error, response, body) => {
+            console.log(`https://api.themoviedb.org/3/discover/movie${api_line}&language=en-US&vote_count.gte=2500${sort_line}${average_line}${genre_line}${year_line}`)
+            request(`https://api.themoviedb.org/3/discover/movie${api_line}&language=en-US&vote_count.gte=2500${sort_line}${average_line}${genre_line}${year_line}`, (error, response, body) => {
                 let results = JSON.parse(body).results.slice(0, parseInt(count));
                 let movie_id_list = [];
                 for (movie of results) {
