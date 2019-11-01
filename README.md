@@ -13,6 +13,7 @@ Test task on node for movies.
 =============================================================
 
 BD_PASS=sahar123
+
 API_KEY=cb4abcaa383d8dcc239745f0cbf9f7da
 
 В корневой папке movie-api, ввести команду:
@@ -27,7 +28,9 @@ node app.js
 =====================================
 
 Server for a blog started on port  5000
+
 DB connected...
+
 Genres restarted
 
 
@@ -35,6 +38,7 @@ Genres restarted
 ==========================
 
 api роуты для теста:
+
 /movies/id/:id (для киношек по id)
 
 /movies/ (небольшая веб форма, для теста фильтров и сотрировок)
