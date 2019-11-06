@@ -9,8 +9,8 @@ const md5 = require('md5');
 const sort = ["popularity.desc", "release_date.desc", "vote_average.desc"]; // список доступных сортировок.
 const api_line = `?api_key=${process.env.API_KEY}`;
 
-bd.deleteGenres().then(() => {
-    bd.saveGenres(genres);
+bd.deleteGenres().then(async () => {
+    await bd.saveGenres(genres);
     console.log("Genres restarted");
 })
 
@@ -56,12 +56,14 @@ router.post("/movies/", (req, res) => {
     if (parseInt(count) > 20 || parseInt(count) < 1) { count = 8; }
 
     let genre_line = ``;
-    for (genre of genres) {
-        if (parseInt(genre_id) === genre.id) {
-            genre_line = `&with_genres=${genre_id}`;
+    if (genre_id) {
+        for (genre of genres) {
+            if (parseInt(genre_id) === genre.id) {
+                genre_line = `&with_genres=${genre_id}`;
+            }
         }
     }
-
+    
     let average_line;
     if (parseInt(average) < 10 && parseInt(average) > 1 ) {
         average = parseInt(average);
@@ -82,20 +84,21 @@ router.post("/movies/", (req, res) => {
 
     let hash = md5(average + year + sortBy + genre_id + count);
 
-    bd.getResult(hash).then((result) => {
+    bd.getResult(hash).then(async (result) => {
         if (!result) {
             console.log("GETS API");
             console.log(result);
             console.log(`https://api.themoviedb.org/3/discover/movie${api_line}&language=en-US&vote_count.gte=1200${sort_line}${average_line}${genre_line}${year_line}`)
-            request(`https://api.themoviedb.org/3/discover/movie${api_line}&language=en-US&vote_count.gte=1200${sort_line}${average_line}${genre_line}${year_line}`, (error, response, body) => {
+            request(`https://api.themoviedb.org/3/discover/movie${api_line}&language=en-US&vote_count.gte=1200${sort_line}${average_line}${genre_line}${year_line}`, async (error, response, body) => {
+                
                 let results = JSON.parse(body).results.slice(0, parseInt(count));
                 let movie_id_list = [];
                 for (movie of results) {
                     movie.genre_titles = genres.genresIdToTitles(movie.genre_ids);
                     movie_id_list.push(movie.id);
-                    bd.saveMovie(movie);
+                    await bd.saveMovie(movie);
                 }
-                bd.saveResult(hash, movie_id_list);
+                await bd.saveResult(hash, movie_id_list);
                 // res.render("index", {
                 //     results: results,
                 //     genres: genres
@@ -105,7 +108,7 @@ router.post("/movies/", (req, res) => {
         } else {
             console.log("GETS LOCAL");
             const ids = result.movies;
-            bd.getMovies(ids).then((movies) => {
+            await bd.getMovies(ids).then((movies) => {
                 console.log(movies);
                 const movie_list = [];
                 for (id of ids) {
