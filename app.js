@@ -9,7 +9,6 @@ const PORT = process.env.PORT || 5000;
 const app = express();
 
 app.use(cors());
-
 app.set('view engine', 'ejs');
 
 app.use(bodyParser.urlencoded({

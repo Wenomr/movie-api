@@ -35,7 +35,6 @@ router.get("/movies/id/:id", (req, res) => {
 
 router.get("/movies/", (req, res) => {
     // Последние сохраненные в базе фильмы
-    
     results = [];
     
     console.log(results);
@@ -87,8 +86,8 @@ router.post("/movies/", (req, res) => {
         if (!result) {
             console.log("GETS API");
             console.log(result);
-            console.log(`https://api.themoviedb.org/3/discover/movie${api_line}&language=en-US&vote_count.gte=2500${sort_line}${average_line}${genre_line}${year_line}`)
-            request(`https://api.themoviedb.org/3/discover/movie${api_line}&language=en-US&vote_count.gte=2500${sort_line}${average_line}${genre_line}${year_line}`, (error, response, body) => {
+            console.log(`https://api.themoviedb.org/3/discover/movie${api_line}&language=en-US&vote_count.gte=1200${sort_line}${average_line}${genre_line}${year_line}`)
+            request(`https://api.themoviedb.org/3/discover/movie${api_line}&language=en-US&vote_count.gte=1200${sort_line}${average_line}${genre_line}${year_line}`, (error, response, body) => {
                 let results = JSON.parse(body).results.slice(0, parseInt(count));
                 let movie_id_list = [];
                 for (movie of results) {
