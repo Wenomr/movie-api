@@ -105,18 +105,6 @@ const getGenreTitleId = (genre_name) => {
   return genre_id;
 }
 
-// router.get("/update_genre_base", (req, res) => {
-//     request(`https://api.themoviedb.org/3/movie/${sortBy}?api_key=${process.env.API_KEY}&language=en-US`, (error, response, body) => {
-//         console.log('error:', error); // Print the error if one occurred
-//         console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-//         let results = JSON.parse(body).results.slice(0, 5);
-//         console.log('body:', results);
-
-//         res.send("API is working properly");
-//     });
-// });
-
-
 module.exports = genres;
 module.exports.getGenreTitleId = getGenreTitleId;
 module.exports.genresIdToTitle = genresIdToTitle;

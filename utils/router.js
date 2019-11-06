@@ -11,7 +11,7 @@ const api_line = `?api_key=${process.env.API_KEY}`;
 
 bd.deleteGenres().then(async () => {
     await bd.saveGenres(genres);
-    console.log("Genres restarted");
+    console.log("Genres ready.");
 })
 
 router.get("/movies/id/:id", (req, res) => {
@@ -37,7 +37,6 @@ router.get("/movies/", (req, res) => {
     // Последние сохраненные в базе фильмы
     results = [];
     
-    console.log(results);
     res.render("index", {
         results: results,
         genres: genres
@@ -47,11 +46,8 @@ router.get("/movies/", (req, res) => {
 router.post("/movies/", (req, res) => {
 
     let {average, year, sortBy, genre_id, count} = req.body;
-    console.log("Average: ", average, "Year: ", year, "Sort: ", sortBy, "Genre_ID: ", genre_id, "Count: ", count);
     sort.includes(sortBy) ? sortBy += "" : sortBy = "popularity.desc";
     let sort_line = `&sort_by=${sortBy}`;
-
-    console.log( "GENRE_NAME: ", genres.genresIdToTitle(genre_id));
 
     if (parseInt(count) > 20 || parseInt(count) < 1) { count = 8; }
 
@@ -86,10 +82,8 @@ router.post("/movies/", (req, res) => {
 
     bd.getResult(hash).then(async (result) => {
         if (!result) {
-            console.log("GETS API");
-            console.log(result);
-            console.log(`https://api.themoviedb.org/3/discover/movie${api_line}&language=en-US&vote_count.gte=1200${sort_line}${average_line}${genre_line}${year_line}`)
-            request(`https://api.themoviedb.org/3/discover/movie${api_line}&language=en-US&vote_count.gte=1200${sort_line}${average_line}${genre_line}${year_line}`, async (error, response, body) => {
+            let url = `https://api.themoviedb.org/3/discover/movie${api_line}&language=en-US&vote_count.gte=1200${sort_line}${average_line}${genre_line}${year_line}`;
+            request(url, async (error, response, body) => {
                 
                 let results = JSON.parse(body).results.slice(0, parseInt(count));
                 let movie_id_list = [];
@@ -106,10 +100,8 @@ router.post("/movies/", (req, res) => {
                 res.send(results);
             });
         } else {
-            console.log("GETS LOCAL");
             const ids = result.movies;
             await bd.getMovies(ids).then((movies) => {
-                console.log(movies);
                 const movie_list = [];
                 for (id of ids) {
                     for (movie of movies) {
@@ -133,14 +125,11 @@ router.get("/movies/genre/:id", (req, res) => {
     let genre_id = req.params.id;
     let genre_line = `&with_genres=${genre_id}`;
     bd.getGenre(genre_id).then((genre) => {
-        console.log(genre);
         if (genre.ready !== true) {
             let percentage = genre.done/genre.total * 100;
             let status = `Loading ${genre.done} out of ${genre.total}. (${percentage.toFixed(2)/1}%). For now average = ${genre.average.toFixed(2)/1}`;
-            console.log(status);
-            res.send(status)
+            res.send(status);
         } else {
-            console.log(`Counting starts!`);
             res.send(`Counting starts!`);
             request(`https://api.themoviedb.org/3/discover/movie${api_line}&language=en-US${genre_line}`, (error, response, body) => {
                 body = JSON.parse(body);
@@ -155,7 +144,7 @@ router.get("/movies/genre/:id", (req, res) => {
                                 for (movie of body.results) {
                                     movie_sum += movie.vote_average;
                                 }
-                                console.log(`${i} of ${body.total_pages} is done`);
+                                //console.log(`${i} of ${body.total_pages} is done`);
                                 let rating = movie_sum/body.results.length;
                                 bd.updateGenre(genre_id, i, rating, total);
                             });
@@ -166,7 +155,6 @@ router.get("/movies/genre/:id", (req, res) => {
             });
         }
     });
-
 });
 
 module.exports = router;
