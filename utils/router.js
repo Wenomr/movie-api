@@ -52,7 +52,7 @@ router.get("/movies/", (req, res) => {
 });
 
 router.post("/movies/", (req, res) => {
-    
+
     let {average, year, sortBy, genre_id, count} = req.body;
     sort.includes(sortBy) ? sortBy += "" : sortBy = "popularity.desc";
     let sort_line = `&sort_by=${sortBy}`;
@@ -61,13 +61,12 @@ router.post("/movies/", (req, res) => {
 
     let genre_line = ``;
     if (genre_id) {
-        for (genre of genres) {
+        genres.forEach((genre) => {
             if (parseInt(genre_id) === genre.id) {
                 genre_line = `&with_genres=${genre_id}`;
             }
-        }
+        });
     }
-    
     let average_line;
     if (parseInt(average) < 10 && parseInt(average) > 1 ) {
         average = parseInt(average);
@@ -95,11 +94,11 @@ router.post("/movies/", (req, res) => {
                 
                 let results = JSON.parse(body).results.slice(0, parseInt(count));
                 let movie_id_list = [];
-                for (movie of results) {
+                results.forEach((movie) => {
                     movie.genre_titles = genres.genresIdToTitles(movie.genre_ids);
                     movie_id_list.push(movie.id);
-                    await movieModel.saveMovie(movie);
-                }
+                    movieModel.saveMovie(movie);
+                });
                 await resultModel.saveResult(hash, movie_id_list);
                 res.send(results);
             });
@@ -107,13 +106,13 @@ router.post("/movies/", (req, res) => {
             const ids = result.movies;
             await movieModel.getMovies(ids).then((movies) => {
                 const movie_list = [];
-                for (id of ids) {
-                    for (movie of movies) {
+                ids.forEach((id) => {
+                    movies.forEach((movie) => {
                         if (movie.id == id) {
                             movie_list.push(movie);
                         }
-                    }
-                }
+                    });
+                });
                 res.send(movie_list);
             });
         }
@@ -141,9 +140,9 @@ router.get("/movies/genre/:id", (req, res) => {
                     request(url, (error, response, body) => {
                         body = JSON.parse(body);
                         let movie_sum = 0;
-                        for (movie of body.results) {
+                        body.results.forEach((movie) => {
                             movie_sum += movie.vote_average;
-                        }
+                        });
                         let rating = movie_sum/body.results.length;
                         genreModel.updateGenre(genre_id, i, rating, total);
                     });
