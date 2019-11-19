@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+// Genre Model
+
 const genreSchema = new mongoose.Schema ({
     id : Number,
     ready : Boolean,
@@ -43,7 +45,7 @@ const updateGenre = (id, i, rating, total) => {
     }
 
     Genre.findOne({id: id}).then((genre) => {
-        console.log(genre);
+        //console.log(genre);
         let summ = genre.summ;
         let new_summ = (rating + summ);
         let new_average = (new_summ/i);

@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+// movie list result Model
+
 const resultSchema = new mongoose.Schema ({
     id : String,
     movies : [Number]

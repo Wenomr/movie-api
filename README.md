@@ -8,10 +8,8 @@ Test task on node for movies.
 В корневой папке movie-api создать файл <.env>
 ==============================================
 
-В файле нужны 2 параметра (мой пароль от атласа и Ваш апи ключ)
+В файле нужен 1 параметр
 =============================================================
-
-BD_PASS=sahar123
 
 API_KEY=cb4abcaa383d8dcc239745f0cbf9f7da
 
@@ -28,9 +26,9 @@ node app.js
 
 Server for a blog started on port  5000
 
-DB connected...
+MongoDB Connected
 
-Genres restarted
+Genres ready.
 
 
 Сервер запущен и работает!
@@ -38,8 +36,8 @@ Genres restarted
 
 api роуты для теста: (в случае если сервер запущен на localhost:5000)
 
-localhost:5000/movies/id/:id (для киношек по id)
+localhost:5000/api/movie/:id (для киношек по id)
 
-localhost:5000/movies/ (небольшая веб форма, для теста фильтров и сотрировок)
+localhost:5000/api/movies/ (небольшая веб форма, для теста фильтров и сотрировок)
 
-localhost:5000/movies/genre/:id (роут с подсчетом рейтинга для жанра)
+localhost:5000/api/genre/:id (роут с подсчетом рейтинга для жанра)

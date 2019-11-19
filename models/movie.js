@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+// movie Model
+
 const movieSchema = new mongoose.Schema ({
     id : Number,
     title: String,
@@ -24,7 +26,6 @@ const getMovie = (id) => {
 
 const saveMovie = (movie) => {
     getMovie(movie.id).then((result) => {
-        console.log(result);
         if (!result) {
             const newMovie = new Movie ({
                 id : movie.id,

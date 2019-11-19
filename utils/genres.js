@@ -1,3 +1,5 @@
+const genreModel = require('../models/Genre');
+
 const genres = [
     {
       "id": 28,
@@ -105,7 +107,14 @@ const getGenreTitleId = (genre_name) => {
   return genre_id;
 }
 
+const genresReset = async () => {
+  await genreModel.deleteGenres();
+  await genreModel.saveGenres(genres);
+  console.log("Genres ready.");
+} 
+
 module.exports = genres;
 module.exports.getGenreTitleId = getGenreTitleId;
 module.exports.genresIdToTitle = genresIdToTitle;
 module.exports.genresIdToTitles = genresIdToTitles;
+module.exports.genresReset = genresReset;
