@@ -34,7 +34,6 @@ router.get('/:id', async (req, res) => {
         // итератор с async/await
         for (let i = 1; i < total; i ++) {
             await delay(350);
-            //console.log(`counting ${i}`);
             let url = `https://api.themoviedb.org/3/discover/movie${api_line}&language=en-US${genre_line}&page=${i}`;
             let request = await axios.get(url);
             let data = request.data;

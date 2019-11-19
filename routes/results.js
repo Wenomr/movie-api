@@ -65,8 +65,8 @@ router.post("/", async (req, res) => {
 
     if (!result) {
         let url = `https://api.themoviedb.org/3/discover/movie${api_line}&language=en-US&vote_count.gte=1000${sort_line}${average_line}${genre_line}${year_line}`;
-        let data = await axios.get(url);
-        data = data.data.results.slice(0, parseInt(count));
+        let request = await axios.get(url);
+        let data = request.data.results.slice(0, parseInt(count));
 
         let movie_id_list = [];
         data.forEach((movie) => {
