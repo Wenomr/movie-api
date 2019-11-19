@@ -80,21 +80,21 @@ const genres = [
 ];
 
 const genresIdToTitle = (genre_id) => {
-    for (item of genres) {
+    genres.forEach((item) => {
         if (item.id === parseInt(genre_id)) {
             return item.name;
         }
-    }
+    });
   return item.name;
 } 
 
 const genresIdToTitles = (genre_ids) => {
   let genre_titles = genre_ids.map((el) => {
-      for (item of genres) {
+      genres.forEach((item) => {
           if (item.id === parseInt(el)) {
               return item.name;
           }
-      }
+      });
   });
   return genre_titles;
 }
